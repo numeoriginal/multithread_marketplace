@@ -55,7 +55,6 @@ class Marketplace:
         if len(self.producers_queue[producer_id]) == self.queue_size:
             return False
         else:
-
             self.producers_queue[producer_id].append(product)
 
             return True
@@ -66,7 +65,7 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        self.consumers_queue.append(collections.deque(maxlen=100))
+        self.consumers_queue.append(collections.deque())
         self.consumers_id_counter += 1
         return self.consumers_id_counter
 
@@ -101,7 +100,7 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        if self.consumers_queue[cart_id].count(product) > 1:
+        if self.consumers_queue[cart_id].count(product) >= 1:
             self.consumers_queue[cart_id].remove(product)
 
     def place_order(self, cart_id):
