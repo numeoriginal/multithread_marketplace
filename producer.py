@@ -5,9 +5,8 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-
+import time
 from threading import Thread
-import json
 
 
 class Producer(Thread):
@@ -38,10 +37,18 @@ class Producer(Thread):
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
         self.kwargs = kwargs
-        print(kwargs)
 
     def run(self):
         self.id = self.marketplace.register_producer()
-        for it in self.products:
-            print(it)
-            #self.marketplace.publish()
+
+
+        while 1:
+            for it in self.products:
+                for _ in range(it[1]):
+                    approved = self.marketplace.publish(str(self.id), it[0])
+                    if approved:
+                        time.sleep(it[2])
+                    else:
+                        while not approved:
+                            time.sleep(self.republish_wait_time)
+                            approved = self.marketplace.publish(self.id, it[0])
