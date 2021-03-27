@@ -7,6 +7,7 @@ March 2021
 """
 
 from threading import Thread
+import json
 
 
 class Consumer(Thread):
@@ -21,6 +22,7 @@ class Consumer(Thread):
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
         self.kwargs = kwargs
+        print(carts)
         """
         Constructor.
 
@@ -39,4 +41,10 @@ class Consumer(Thread):
         """
 
     def run(self):
-        pass
+        self.cart_id = self.marketplace.new_cart()
+        print(self.cart_id)
+        for el in self.carts:
+            for action in el:
+                print(action)
+                #json_obs = json.dumps(action)
+

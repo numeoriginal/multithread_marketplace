@@ -40,12 +40,14 @@ class Producer(Thread):
 
     def run(self):
         self.id = self.marketplace.register_producer()
-
-
+        """
+            Producatorul se inregistreaza in market 
+            dupa care incearca sa isi plaseze produsele pe raftul sau 
+        """
         while 1:
             for it in self.products:
                 for _ in range(it[1]):
-                    approved = self.marketplace.publish(str(self.id), it[0])
+                    approved = self.marketplace.publish(self.id, it[0])
                     if approved:
                         time.sleep(it[2])
                     else:

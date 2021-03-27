@@ -7,6 +7,7 @@ March 2021
 """
 
 import random
+import collections
 
 
 class Marketplace:
@@ -14,6 +15,7 @@ class Marketplace:
     Class that represents the Marketplace. It's the central part of the implementation.
     The producers and consumers use its methods concurrently.
     """
+
     def __init__(self, queue_size_per_producer):
         """
         Constructor
@@ -21,7 +23,11 @@ class Marketplace:
         :type queue_size_per_producer: Int
         :param queue_size_per_producer: the maximum size of a queue associated with each producer
         """
+        self.producers_queue = []
+        self.consumers_queue = []
+        self.queue_size = queue_size_per_producer
         self.producer_id_counter = -1
+        self.consumers_id_counter = -1
         pass
 
     def register_producer(self):
@@ -29,26 +35,32 @@ class Marketplace:
         """
         Returns an id for the producer that calls this.
         """
+        self.producers_queue.append(collections.deque(maxlen=self.queue_size))
         self.producer_id_counter += 1
+
         return self.producer_id_counter
 
     def publish(self, producer_id, product):
-
-        print(producer_id)
-        print(product)
         """
-        Adds the product provided by the producer to the marketplace
+               Adds the product provided by the producer to the marketplace
 
-        :type producer_id: String
-        :param producer_id: producer id
+               :type producer_id: String
+               :param producer_id: producer id
 
-        :type product: Product
-        :param product: the Product that will be published in the Marketplace
+               :type product: Product
+               :param product: the Product that will be published in the Marketplace
 
-        :returns True or False. If the caller receives False, it should wait and then try again.
+               :returns True or False. If the caller receives False, it should wait and then try again.
         """
+        #print(product)
+        #print(producer_id)
 
-        pass
+        if len(self.producers_queue[producer_id]) == self.queue_size:
+            return False
+        else:
+            self.producers_queue[producer_id].append(product)
+            #print(self.producers_queue[producer_id])
+            return True
 
     def new_cart(self):
         """
@@ -56,7 +68,10 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        pass
+        self.consumers_queue.append([])
+        print(len(self.consumers_queue))
+        self.consumers_id_counter += 1
+        return self.consumers_id_counter
 
     def add_to_cart(self, cart_id, product):
         """
