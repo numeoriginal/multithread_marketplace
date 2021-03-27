@@ -52,14 +52,12 @@ class Marketplace:
 
                :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        #print(product)
-        #print(producer_id)
-
         if len(self.producers_queue[producer_id]) == self.queue_size:
             return False
         else:
+
             self.producers_queue[producer_id].append(product)
-            #print(self.producers_queue[producer_id])
+
             return True
 
     def new_cart(self):
@@ -68,8 +66,7 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        self.consumers_queue.append([])
-        print(len(self.consumers_queue))
+        self.consumers_queue.append(collections.deque(maxlen=100))
         self.consumers_id_counter += 1
         return self.consumers_id_counter
 
@@ -85,7 +82,13 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        pass
+        for i in range(len(self.producers_queue)):
+            if self.producers_queue[i].count(product) > 1:
+                self.consumers_queue[cart_id].append(product)
+                self.producers_queue[i].remove(product)
+                return True
+
+        return False
 
     def remove_from_cart(self, cart_id, product):
         """
@@ -97,7 +100,8 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        pass
+        if self.consumers_queue[cart_id].count(product) > 1:
+            self.consumers_queue[cart_id].remove(product)
 
     def place_order(self, cart_id):
         """
@@ -106,4 +110,4 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        pass
+        return self.consumers_queue[cart_id]

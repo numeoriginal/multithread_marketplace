@@ -5,7 +5,7 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-
+import time
 from threading import Thread
 import json
 
@@ -23,6 +23,7 @@ class Consumer(Thread):
         self.retry_wait_time = retry_wait_time
         self.kwargs = kwargs
         print(carts)
+        print(kwargs)
         """
         Constructor.
 
@@ -45,6 +46,18 @@ class Consumer(Thread):
         print(self.cart_id)
         for el in self.carts:
             for action in el:
-                print(action)
-                #json_obs = json.dumps(action)
+                if action['type'] == 'add':
+                    print("Add command")
+                    for _ in range(action['quantity']):
+                        approved = self.marketplace.add_to_cart(self.cart_id, action['product'])
+                        if not approved:
+                            time.sleep(self.retry_wait_time)
+                else:
+                    for _ in range(action['quantity']):
+                        pass
+                        # self.marketplace.remove_from_cart(self.cart_id, action['product'])
+                    print("Remove command")
 
+        cart = self.marketplace.place_order(self.cart_id)
+        for i in range(len(cart)):
+            print(self.kwargs['name'] + 'bought' + cart[i])
