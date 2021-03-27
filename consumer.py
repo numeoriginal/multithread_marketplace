@@ -61,4 +61,5 @@ class Consumer(Thread):
 
         cart = self.marketplace.place_order(self.cart_id)
         for i in range(len(cart)):
+            pass
             print(self.kwargs['name'] + " " + 'bought' + " " + str(cart[i]))

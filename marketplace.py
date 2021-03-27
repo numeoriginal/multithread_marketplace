@@ -110,10 +110,13 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
+        print(self.consumers_id_counter)
         self.consumers_id_counter -= 1
+        print(self.consumers_id_counter)
         return self.consumers_queue[cart_id]
 
     def end_day(self):
-        if self.consumers_id_counter < 0:
+        print(self.consumers_id_counter)
+        if self.consumers_id_counter <= -1:
             return False
         return True
