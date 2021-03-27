@@ -44,7 +44,8 @@ class Producer(Thread):
             Producatorul se inregistreaza in market 
             dupa care incearca sa isi plaseze produsele pe raftul sau 
         """
-        while 1:
+        day = True
+        while day:
             for it in self.products:
                 for _ in range(it[1]):
                     approved = self.marketplace.publish(self.id, it[0])
@@ -54,3 +55,5 @@ class Producer(Thread):
                         while not approved:
                             time.sleep(self.republish_wait_time)
                             approved = self.marketplace.publish(self.id, it[0])
+
+            day = self.marketplace.end_day()

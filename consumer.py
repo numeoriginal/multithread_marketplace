@@ -22,8 +22,8 @@ class Consumer(Thread):
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
         self.kwargs = kwargs
-        print(carts)
-        print(kwargs)
+        #print(carts)
+        #print(kwargs)
         """
         Constructor.
 
@@ -43,21 +43,22 @@ class Consumer(Thread):
 
     def run(self):
         self.cart_id = self.marketplace.new_cart()
-        print(self.cart_id)
+        #print(self.cart_id)
         for el in self.carts:
             for action in el:
                 if action['type'] == 'add':
-                    print("Add command")
+                    #print("Add command")
                     for _ in range(action['quantity']):
                         approved = self.marketplace.add_to_cart(self.cart_id, action['product'])
-                        if not approved:
+                        while not approved:
                             time.sleep(self.retry_wait_time)
+                            approved = self.marketplace.add_to_cart(self.cart_id, action['product'])
                 else:
                     for _ in range(action['quantity']):
                         pass
-                        # self.marketplace.remove_from_cart(self.cart_id, action['product'])
-                    print("Remove command")
+                        self.marketplace.remove_from_cart(self.cart_id, action['product'])
+                    #print("Remove command")
 
         cart = self.marketplace.place_order(self.cart_id)
         for i in range(len(cart)):
-            print(self.kwargs['name'] + 'bought' + cart[i])
+            print(self.kwargs['name'] + " " + 'bought' + " " + str(cart[i]))

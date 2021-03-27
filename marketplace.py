@@ -83,7 +83,8 @@ class Marketplace:
         :returns True or False. If the caller receives False, it should wait and then try again
         """
         for i in range(len(self.producers_queue)):
-            if self.producers_queue[i].count(product) > 1:
+            # print(self.producers_queue[i].count(product))
+            if self.producers_queue[i].count(product) >= 1:
                 self.consumers_queue[cart_id].append(product)
                 self.producers_queue[i].remove(product)
                 return True
@@ -110,4 +111,10 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
+        self.consumers_id_counter -= 1
         return self.consumers_queue[cart_id]
+
+    def end_day(self):
+        if self.consumers_id_counter < 0:
+            return False
+        return True
