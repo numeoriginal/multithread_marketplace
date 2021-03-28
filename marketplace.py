@@ -5,9 +5,8 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-
-import random
 import collections
+import threading
 
 
 class Marketplace:
@@ -28,16 +27,16 @@ class Marketplace:
         self.queue_size = queue_size_per_producer
         self.producer_id_counter = -1
         self.consumers_id_counter = -1
-        pass
+        self.n_lock = threading.Lock()
 
     def register_producer(self):
 
         """
         Returns an id for the producer that calls this.
         """
+       # with self.producer_lock:
         self.producers_queue.append(collections.deque(maxlen=self.queue_size))
         self.producer_id_counter += 1
-
         return self.producer_id_counter
 
     def publish(self, producer_id, product):
@@ -56,7 +55,6 @@ class Marketplace:
             return False
         else:
             self.producers_queue[producer_id].append(product)
-
             return True
 
     def new_cart(self):
@@ -65,9 +63,10 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        self.consumers_queue.append(collections.deque())
-        self.consumers_id_counter += 1
-        return self.consumers_id_counter
+        with self.n_lock:
+            self.consumers_id_counter += 1
+            self.consumers_queue.append(collections.deque())
+            return self.consumers_id_counter
 
     def add_to_cart(self, cart_id, product):
         """
@@ -81,13 +80,12 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
+        # with self.inchidete_wei:
         for i in range(len(self.producers_queue)):
-            # print(self.producers_queue[i].count(product))
             if self.producers_queue[i].count(product) >= 1:
                 self.consumers_queue[cart_id].append(product)
                 self.producers_queue[i].remove(product)
                 return True
-
         return False
 
     def remove_from_cart(self, cart_id, product):
@@ -110,13 +108,14 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        print(self.consumers_id_counter)
-        self.consumers_id_counter -= 1
-        print(self.consumers_id_counter)
-        return self.consumers_queue[cart_id]
+        with self.n_lock:
+            print(cart_id)
+            self.consumers_id_counter -= 1
+            x = self.consumers_queue[cart_id].copy()
+            self.consumers_queue[cart_id].clear()
+            return x
 
     def end_day(self):
-        print(self.consumers_id_counter)
         if self.consumers_id_counter <= -1:
             return False
         return True

@@ -57,7 +57,3 @@ class Producer(Thread):
                             approved = self.marketplace.publish(self.id, it[0])
 
             day = self.marketplace.end_day()
-            print(day)
-            if not day:
-                break
-            print("ALOO")
