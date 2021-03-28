@@ -109,7 +109,7 @@ class Marketplace:
         :param cart_id: id cart
         """
         with self.n_lock:
-            print(cart_id)
+            #print(cart_id)
             self.consumers_id_counter -= 1
             x = self.consumers_queue[cart_id].copy()
             self.consumers_queue[cart_id].clear()
