@@ -4,7 +4,6 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-import collections
 import threading
 
 
@@ -26,17 +25,14 @@ class Marketplace:
         self.producer_id_counter = -1
         self.consumers_id_counter = -1
         self.n_lock = threading.Lock()
-        self.p_lock = threading.Lock()
-        self.consumer_name = ""
+        self.queue_max_size = 0
 
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
         """
-        with self.p_lock:
-            self.producers_queue.append([])
-            self.producer_id_counter += 1
-            return self.producer_id_counter
+        self.producer_id_counter += 1
+        return self.producer_id_counter
 
     def publish(self, producer_id, product):
         """
@@ -47,11 +43,12 @@ class Marketplace:
                :param product: the Product that will be published in the Marketplace
                :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        with self.p_lock:
-            if len(self.producers_queue[producer_id]) == self.queue_size:
+        with self.n_lock:
+            if self.queue_max_size == (self.queue_size * (self.producer_id_counter + 1)):
                 return False
             else:
-                self.producers_queue[producer_id].append(product)
+                self.queue_max_size += 1
+                self.producers_queue.append(product)
                 return True
 
     def new_cart(self):
@@ -74,11 +71,11 @@ class Marketplace:
         :returns True or False. If the caller receives False, it should wait and then try again
         """
         with self.n_lock:
-            for i in range(len(self.producers_queue)):
-                if self.producers_queue[i].count(product) >= 1:
-                    self.consumers_queue[cart_id].append(product)
-                    self.producers_queue[i].remove(product)
-                    return True
+            if self.producers_queue.count(product) >= 1:
+                self.consumers_queue[cart_id].append(product)
+                self.queue_max_size -= 1
+                self.producers_queue.remove(product)
+                return True
             return False
 
     def remove_from_cart(self, cart_id, product):
@@ -89,26 +86,23 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        with self.n_lock:
-            if self.consumers_queue[cart_id].count(product) >= 1:
-                self.consumers_queue[cart_id].remove(product)
+        if self.consumers_queue[cart_id].count(product) >= 1:
+            self.producers_queue.append(product)
+            self.consumers_queue[cart_id].remove(product)
 
     def place_order(self, cart_id, name):
         """
         Return a list with all the products in the cart.
         :type cart_id: Int
         :param cart_id: id cart
+        :type name: string
         """
-        with self.n_lock:
-            self.consumer_name = name
-            self.consumers_id_counter -= 1
-            x = self.consumers_queue[cart_id].copy()
-            for i in range(len(self.consumers_queue[cart_id])):
-                print(self.consumer_name + " " + 'bought' + " " + str(self.consumers_queue[cart_id][i]))
+        self.consumers_id_counter -= 1
+        for i in range(len(self.consumers_queue[cart_id])):
+            print(name + " " + 'bought' + " " + str(self.consumers_queue[cart_id][i]))
         self.consumers_queue[cart_id].clear()
 
     def end_day(self):
-        with self.p_lock:
-            if self.consumers_id_counter <= -1:
-                return False
-            return True
+        if self.consumers_id_counter <= -1:
+            return False
+        return True
