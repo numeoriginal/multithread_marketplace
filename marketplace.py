@@ -6,11 +6,14 @@ March 2021
 """
 import collections
 import threading
+
+
 class Marketplace:
     """
     Class that represents the Marketplace. It's the central part of the implementation.
     The producers and consumers use its methods concurrently.
     """
+
     def __init__(self, queue_size_per_producer):
         """
         Constructor
@@ -23,19 +26,17 @@ class Marketplace:
         self.producer_id_counter = -1
         self.consumers_id_counter = -1
         self.n_lock = threading.Lock()
+        self.p_lock = threading.Lock()
         self.consumer_name = ""
 
     def register_producer(self):
-
         """
         Returns an id for the producer that calls this.
         """
-       # with self.producer_lock:
-        self.producers_queue.append(collections.deque(maxlen=self.queue_size))
-        # with self.producer_lock:
-        self.producers_queue.append([])
-        self.producer_id_counter += 1
-        return self.producer_id_counter
+        with self.p_lock:
+            self.producers_queue.append([])
+            self.producer_id_counter += 1
+            return self.producer_id_counter
 
     def publish(self, producer_id, product):
         """
@@ -46,11 +47,12 @@ class Marketplace:
                :param product: the Product that will be published in the Marketplace
                :returns True or False. If the caller receives False, it should wait and then try again.
         """
-        if len(self.producers_queue[producer_id]) == self.queue_size:
-            return False
-        else:
-            self.producers_queue[producer_id].append(product)
-            return True
+        with self.p_lock:
+            if len(self.producers_queue[producer_id]) == self.queue_size:
+                return False
+            else:
+                self.producers_queue[producer_id].append(product)
+                return True
 
     def new_cart(self):
         """
@@ -59,7 +61,6 @@ class Marketplace:
         """
         with self.n_lock:
             self.consumers_id_counter += 1
-            self.consumers_queue.append(collections.deque())
             self.consumers_queue.append([])
             return self.consumers_id_counter
 
@@ -72,13 +73,13 @@ class Marketplace:
         :param product: the product to add to cart
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        # with self.inchidete_wei:
-        for i in range(len(self.producers_queue)):
-            if self.producers_queue[i].count(product) >= 1:
-                self.consumers_queue[cart_id].append(product)
-                self.producers_queue[i].remove(product)
-                return True
-        return False
+        with self.n_lock:
+            for i in range(len(self.producers_queue)):
+                if self.producers_queue[i].count(product) >= 1:
+                    self.consumers_queue[cart_id].append(product)
+                    self.producers_queue[i].remove(product)
+                    return True
+            return False
 
     def remove_from_cart(self, cart_id, product):
         """
@@ -88,31 +89,26 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        if self.consumers_queue[cart_id].count(product) >= 1:
-            self.consumers_queue[cart_id].remove(product)
+        with self.n_lock:
+            if self.consumers_queue[cart_id].count(product) >= 1:
+                self.consumers_queue[cart_id].remove(product)
 
-    def place_order(self, cart_id):
+    def place_order(self, cart_id, name):
         """
         Return a list with all the products in the cart.
         :type cart_id: Int
         :param cart_id: id cart
         """
         with self.n_lock:
-            #print(cart_id)
-            # print(cart_id)
+            self.consumer_name = name
             self.consumers_id_counter -= 1
             x = self.consumers_queue[cart_id].copy()
             for i in range(len(self.consumers_queue[cart_id])):
                 print(self.consumer_name + " " + 'bought' + " " + str(self.consumers_queue[cart_id][i]))
-           # x = self.consumers_queue[cart_id].copy()
         self.consumers_queue[cart_id].clear()
-            #return x
 
     def end_day(self):
-        if self.consumers_id_counter <= -1:
-            return False
-        return True
-
-    def set_cons_name(self, name):
-        #with self.n_lock:
-        self.consumer_name = name
+        with self.p_lock:
+            if self.consumers_id_counter <= -1:
+                return False
+            return True

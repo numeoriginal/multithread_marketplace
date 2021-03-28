@@ -42,25 +42,16 @@ class Consumer(Thread):
     def run(self):
         cart_id = self.marketplace.new_cart()
         for el in self.carts:
-
-            #print(self.carts)
-            #print(self.kwargs['name'])
-            #print(cart_id)
             for action in el:
-                #print(action)
                 if action['type'] == 'add':
                     for _ in range(action['quantity']):
                         approved = self.marketplace.add_to_cart(cart_id, action['product'])
                         while not approved:
                             time.sleep(self.retry_wait_time)
                             approved = self.marketplace.add_to_cart(cart_id, action['product'])
-
                 else:
                     for _ in range(action['quantity']):
                         self.marketplace.remove_from_cart(cart_id, action['product'])
 
-        self.marketplace.set_cons_name(self.kwargs['name'])
-        cart = self.marketplace.place_order(cart_id)
+        self.marketplace.place_order(cart_id, self.kwargs['name'])
 
-       # for i in range(len(cart)):
-         #   print(self.kwargs['name'] + " " + 'bought' + " " + str(cart[i]))
