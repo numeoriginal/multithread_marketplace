@@ -17,7 +17,7 @@ class Consumer(Thread):
 
     def __init__(self, carts, marketplace, retry_wait_time, **kwargs):
 
-        super(Consumer, self).__init__()
+        Thread.__init__(self, **kwargs)
         self.carts = carts
         self.marketplace = marketplace
         self.retry_wait_time = retry_wait_time
@@ -59,6 +59,8 @@ class Consumer(Thread):
                     for _ in range(action['quantity']):
                         self.marketplace.remove_from_cart(cart_id, action['product'])
 
+        self.marketplace.set_cons_name(self.kwargs['name'])
         cart = self.marketplace.place_order(cart_id)
-        for i in range(len(cart)):
-            print(self.kwargs['name'] + " " + 'bought' + " " + str(cart[i]))
+
+       # for i in range(len(cart)):
+         #   print(self.kwargs['name'] + " " + 'bought' + " " + str(cart[i]))

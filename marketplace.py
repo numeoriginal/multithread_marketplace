@@ -28,14 +28,15 @@ class Marketplace:
         self.producer_id_counter = -1
         self.consumers_id_counter = -1
         self.n_lock = threading.Lock()
+        self.consumer_name = ""
 
     def register_producer(self):
 
         """
         Returns an id for the producer that calls this.
         """
-       # with self.producer_lock:
-        self.producers_queue.append(collections.deque(maxlen=self.queue_size))
+        # with self.producer_lock:
+        self.producers_queue.append([])
         self.producer_id_counter += 1
         return self.producer_id_counter
 
@@ -65,7 +66,7 @@ class Marketplace:
         """
         with self.n_lock:
             self.consumers_id_counter += 1
-            self.consumers_queue.append(collections.deque())
+            self.consumers_queue.append([])
             return self.consumers_id_counter
 
     def add_to_cart(self, cart_id, product):
@@ -109,13 +110,19 @@ class Marketplace:
         :param cart_id: id cart
         """
         with self.n_lock:
-            #print(cart_id)
+            # print(cart_id)
             self.consumers_id_counter -= 1
-            x = self.consumers_queue[cart_id].copy()
+            for i in range(len(self.consumers_queue[cart_id])):
+                print(self.consumer_name + " " + 'bought' + " " + str(self.consumers_queue[cart_id][i]))
+           # x = self.consumers_queue[cart_id].copy()
             self.consumers_queue[cart_id].clear()
-            return x
+           # return x
 
     def end_day(self):
         if self.consumers_id_counter <= -1:
             return False
         return True
+
+    def set_cons_name(self, name):
+        with self.n_lock:
+            self.consumer_name = name
