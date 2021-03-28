@@ -1,0 +1,50 @@
+Nume:Carp Constantin
+Grupă:336CC
+
+# Tema <1> ASC
+
+Organizare
+-
+1. Explicație pentru soluția aleasă:
+
+***Obligatoriu:***
+Nu știu cât de bine pot să apreciez utilitatea temei, dar sunt sigur că python acoperă multe situații 
+	despre care programatorul nu trebuie
+	sa își facă griji în alte limbaje de programare.
+
+Ideea principală: am o coada comună pentru producatori de dimensiune (que_size_per_produce * nr_producers)
+	și fiecare producator are o listă
+	în care își poate pune sau scoate produse.
+	în principiu am utilizat doar funțiile din schelet, si am adaugat o singura funcție,
+	pentru a anunța producatorii când se pot opri:
+
+	def end_day(self):
+        if self.consumers_id_counter <= -1:
+            return False
+        return True
+
+O implementare mai bună ar fi reprezentat o coada pentru fiecare producator,
+	 și fie un dictionar pentru consumator cu 2 liste,
+	 în una aș fi avut produsele iar in cealaltă, coada producatorului de unde a fost luat produsul, 
+	 sau o lista de tupluri(produs, id_producator), implementarea cu o singură coadă este un pic mai naivă.
+
+Implementare
+
+Este implementat tot enunțul temei, și trec toate testele. 
+În pricipiu am facut cam totul dupa instructiunile din temă și nu am adaugat funcționalitați extra
+	doar o funție care imi atenționează producătorii că se pot opri din produs.
+Am folosit lock-uri pe operații neatomice în general incercand sa minimizez la maxim utilizarea de lock-uri.
+
+-Nu stiu daca este un lucru interesant asta sau nu, dar imi treceau 9/10 teste fara sa fac manual sincronizari
+	probabil datorita faptului ca listele sunt threading safe și alte optimizari la nivel de limbaj in python
+
+Resurse utilizate
+- https://ocw.cs.pub.ro/courses/asc/teme/tema1
+- https://curs.upb.ro/mod/forum/view.php?id=235383
+- https://www.w3schools.com/python/python_lists.asp
+- https://docs.python.org/3/library/collections.html
+- https://ocw.cs.pub.ro/courses/asc/laboratoare/02
+- nu stiu daca sunt toate, probabil îmi scapă câteva pentru că le-am cam închis după ce rezolvam neclaritățile.
+
+Git
+1. Link către repo-ul de git - https://github.com/numeoriginal/Tema1ASC

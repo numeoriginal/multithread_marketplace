@@ -30,6 +30,8 @@ class Marketplace:
     def register_producer(self):
         """
         Returns an id for the producer that calls this.
+
+        Initializeaza producatorii incepand cu id - 0
         """
         self.producer_id_counter += 1
         return self.producer_id_counter
@@ -42,6 +44,8 @@ class Marketplace:
                :type product: Product
                :param product: the Product that will be published in the Marketplace
                :returns True or False. If the caller receives False, it should wait and then try again.
+
+               Verifica daca are spatiu in queue ca adauge
         """
         with self.n_lock:
             if self.queue_max_size == (self.queue_size * (self.producer_id_counter + 1)):
@@ -55,6 +59,9 @@ class Marketplace:
         """
         Creates a new cart for the consumer
         :returns an int representing the cart_id
+
+        Initilizeaza consumatorii incepand cu id - 0
+        si o lista de produse pentru fiecare
         """
         with self.n_lock:
             self.consumers_id_counter += 1
@@ -69,6 +76,9 @@ class Marketplace:
         :type product: Product
         :param product: the product to add to cart
         :returns True or False. If the caller receives False, it should wait and then try again
+
+        Verifica daca exista produsul dorit in queue si il adauga la el,
+        eliminand-ul din queue principal
         """
         with self.n_lock:
             if self.producers_queue.count(product) >= 1:
@@ -85,6 +95,9 @@ class Marketplace:
         :param cart_id: id cart
         :type product: Product
         :param product: the product to remove from cart
+
+        Verifica daca ce incearca consumatorul exista la el in cart
+        il scoate de la ei si il adauga inapoi coada principala
         """
         if self.consumers_queue[cart_id].count(product) >= 1:
             self.producers_queue.append(product)
@@ -96,6 +109,9 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         :type name: string
+
+        Printeaza continutul cart-ului consumatorului care a apelat
+        anunta producatorul ca un consumator a terminat cumparaturile deja
         """
         self.consumers_id_counter -= 1
         for i in range(len(self.consumers_queue[cart_id])):
@@ -103,6 +119,7 @@ class Marketplace:
         self.consumers_queue[cart_id].clear()
 
     def end_day(self):
+        # Anunta producatorul cand se poate opri
         if self.consumers_id_counter <= -1:
             return False
         return True

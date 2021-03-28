@@ -7,7 +7,6 @@ March 2021
 """
 import time
 from threading import Thread
-import json
 
 
 class Consumer(Thread):
@@ -40,6 +39,16 @@ class Consumer(Thread):
         """
 
     def run(self):
+        """
+            Fiecarui consumator i se acorda un cart cu un id
+
+            Iterez prin cart, verific tipul operatiunii de efectuat add/remove
+            executa operatia de cate ori se cere.
+
+            In caz ca nu poate adauga in cos, asteapta un timp predefinit.
+
+            La final printeaza la ecran ce are in cart dupa toate operatiile
+        """
         cart_id = self.marketplace.new_cart()
         for el in self.carts:
             for action in el:

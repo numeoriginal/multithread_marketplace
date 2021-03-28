@@ -38,11 +38,17 @@ class Producer(Thread):
         self.kwargs = kwargs
 
     def run(self):
+        """
+            Producatorul se inregistreaza in market
+            dupa care produce din lista disponibila lui.
+
+            Incearca sa isi plaseze produsele pe raftul shop-ului
+            Daca ii reuseste asteapta un timp, daca nu asteapta un timp predefinitt si mai incearca
+
+            la final verifica daca mai sunt consumatori activi pentru a sti daca mai trebuie sa produca sau nu
+        """
         self.id = self.marketplace.register_producer()
-        """
-            Producatorul se inregistreaza in market 
-            dupa care incearca sa isi plaseze produsele pe raftul sau 
-        """
+
         day = True
         while day:
             for it in self.products:
