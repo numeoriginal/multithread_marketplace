@@ -39,26 +39,29 @@ class Producer(Thread):
 
     def run(self):
         """
-            Producatorul se inregistreaza in market
-            dupa care produce din lista disponibila lui.
+            Producers register to the market
+            and starts producing the items that he can from his list
 
-            Incearca sa isi plaseze produsele pe raftul shop-ului
-            Daca ii reuseste asteapta un timp, daca nu asteapta un timp predefinitt si mai incearca
+            Then tries to put the produced item in the market
+            if he is allowed to do that, then he waits a small predefined amount of time
 
-            la final verifica daca mai sunt consumatori activi pentru a sti daca mai trebuie sa produca sau nu
+            if the queue is full then waits a predefined time and then tries again
+
+            after all the iteration he verifies if there are consumers he can produce for
+            if not then the day ends and he goes back home to his kids
         """
-        self.id = self.marketplace.register_producer()
+        id_producer = self.marketplace.register_producer()
 
         day = True
         while day:
             for it in self.products:
                 for _ in range(it[1]):
-                    approved = self.marketplace.publish(self.id, it[0])
+                    approved = self.marketplace.publish(id_producer, it[0])
                     if approved:
                         time.sleep(it[2])
                     else:
                         while not approved:
                             time.sleep(self.republish_wait_time)
-                            approved = self.marketplace.publish(self.id, it[0])
+                            approved = self.marketplace.publish(id_producer, it[0])
 
             day = self.marketplace.end_day()

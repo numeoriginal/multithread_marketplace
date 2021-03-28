@@ -40,14 +40,15 @@ class Consumer(Thread):
 
     def run(self):
         """
-            Fiecarui consumator i se acorda un cart cu un id
+            Every consumer gets an id
 
-            Iterez prin cart, verific tipul operatiunii de efectuat add/remove
-            executa operatia de cate ori se cere.
+            Iterating through the cart , verifying the operations to be done add/remove
+            executing the operation the required amount of time
 
-            In caz ca nu poate adauga in cos, asteapta un timp predefinit.
+            In case that the consumer cant find the product, he will wait
+            the pre defined time
 
-            La final printeaza la ecran ce are in cart dupa toate operatiile
+            At the end he will print what he got in his cart.
         """
         cart_id = self.marketplace.new_cart()
         for el in self.carts:
@@ -61,6 +62,4 @@ class Consumer(Thread):
                 else:
                     for _ in range(action['quantity']):
                         self.marketplace.remove_from_cart(cart_id, action['product'])
-
         self.marketplace.place_order(cart_id, self.kwargs['name'])
-
